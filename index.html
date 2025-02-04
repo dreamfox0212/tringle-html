@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角套利計算工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 10px;
+        }
+
+        input {
+            margin: 5px 0;
+            padding: 5px;
+            width: 100%;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>三角套利計算工具</h1>
+    <label>初始 NTD 金額：</label>
+    <input type="number" id="ntdAmount" placeholder="例如 100000">
+
+    <label>聯邦銀行 NTD/USD 匯率：</label>
+    <input type="number" id="ntdUsdRate" step="0.01" placeholder="例如 32.5">
+
+    <label>MAicoin USD/USDT 匯率：</label>
+    <input type="number" id="usdUsdtRate" step="0.01" placeholder="例如 1.0">
+
+    <label>MAX USDT/NTD 匯率：</label>
+    <input type="number" id="usdtNtdRate" step="0.01" placeholder="例如 32.6">
+
+    <label>MAX 手續費率 (小數，例如 0.002)：</label>
+    <input type="number" id="maxFeeRate" step="0.005" placeholder="例如 0.001">
+
+    <button onclick="calculateArbitrage()">計算利潤</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function calculateArbitrage() {
+            const ntdAmount = parseFloat(document.getElementById('ntdAmount').value);
+            const ntdUsdRate = parseFloat(document.getElementById('ntdUsdRate').value);
+            const usdUsdtRate = parseFloat(document.getElementById('usdUsdtRate').value);
+            const usdtNtdRate = parseFloat(document.getElementById('usdtNtdRate').value);
+            const maxFeeRate = parseFloat(document.getElementById('maxFeeRate').value);
+
+            if (isNaN(ntdAmount) || isNaN(ntdUsdRate) || isNaN(usdUsdtRate) || isNaN(usdtNtdRate) || isNaN(maxFeeRate)) {
+                document.getElementById('result').innerText = '請填寫所有欄位！';
+                return;
+            }
+
+            const usdAmount = ntdAmount / ntdUsdRate;
+            const usdtAmount = usdAmount * usdUsdtRate;
+            const ntdFinal = usdtAmount * usdtNtdRate;
+            const ntdFinalAfterFee = ntdFinal * (1 - maxFeeRate);
+            const profit = ntdFinalAfterFee - ntdAmount;
+
+            document.getElementById('result').innerHTML = `
+        初始 NTD 金額：${ntdAmount.toFixed(2)}<br>
+        換成 USD 的金額：${usdAmount.toFixed(2)}<br>
+        換成 USDT 的金額：${usdtAmount.toFixed(2)}<br>
+        最終換回的 NTD（扣除手續費）：${ntdFinalAfterFee.toFixed(2)}<br>
+        利潤：${profit.toFixed(2)}
+      `;
+        }
+    </script>
+</body>
+
+</html>
